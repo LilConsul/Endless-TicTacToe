@@ -3,4 +3,5 @@ project(Endless_TicTacToe_CPP)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(Endless_TicTacToe_CPP main.cpp)
+add_executable(Endless_TicTacToe_CPP main.cpp
+        minimax.cpp)
