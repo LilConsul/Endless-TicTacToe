@@ -16,7 +16,7 @@ git clone https://github.com/LilConsul/Endless-TicTacToe-CPP.git
 2. Navigate to the project directory and compile the code using any C++ compiler.
 
 ## Settings
-Find `STATIC_SETTINGS` class in the `minimax.cpp` file to adjust basic setting of the game.
+Find `STATIC_SETTINGS` class in the [minimax.cpp](minimax.cpp) file to adjust basic setting of the game.
 ```c++
     const bool DEBUG = false;
     const unsigned int RECURSION_DEPTH = 4;
