@@ -9,24 +9,22 @@ using namespace std;
 class STATIC_SETTINGS {
 protected:
     //Adjustable settings
-    const bool DEBUG = false;
-    const unsigned int RECURSION_DEPTH = 4;
+    static constexpr bool DEBUG = false;
+    static constexpr unsigned int RECURSION_DEPTH = 4;
 
-    static const unsigned int BASIC_SIZE = 7;
-    static const unsigned int EXTEND_SIZE = 3;
+    static constexpr unsigned int BASIC_SIZE = 7;
+    static constexpr unsigned int EXTEND_SIZE = 3;
 
-    const char EMPTY = ' ';
-    const char PC_CHAR = 'X';
-    const char USER_CHAR = '0';
-
+    static constexpr char EMPTY = ' ';
+    static constexpr char PC_CHAR = 'X';
+    static constexpr char USER_CHAR = '0';
 
     //Non-adjustable settings. DON'T TOUCH THEM
-    const int WIN_SCORE = 1000000;
-    const int NULL_INT = -10000;
-    const double NULL_DOUBLE = -10000.0;
+    static constexpr int WIN_SCORE = 1000000;
+    static constexpr int NULL_INT = -10000;
+    static constexpr double NULL_DOUBLE = -10000.0;
     const vector<double> NULL_VEC_DOUBLE = {NULL_DOUBLE, NULL_DOUBLE, NULL_DOUBLE};
     const vector<int> NULL_VEC_INT = {NULL_INT, NULL_INT, NULL_INT};
-
 };
 
 class Board : protected STATIC_SETTINGS {
@@ -69,83 +67,21 @@ public:
         matrix[posY][posX] = isX ? 2 : 1;
         return true;
     }
-    /*    vector<pair<int, int>> generateMoves() {
-        vector<pair<int, int>> moveList;
 
-        int rows = static_cast<int>(matrix.size());
-        int cols = static_cast<int>(matrix[0].size());
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-
-                if (matrix[i][j] > 0) continue;
-
-                if (i > 0) {
-                    if (j > 0) {
-                        if (matrix[i - 1][j - 1] > 0 ||
-                            matrix[i][j - 1] > 0) {
-                            pair<int, int> move = {i, j};
-                            moveList.push_back(move);
-                            continue;
-                        }
-                    }
-                    if (j < cols - 1) {
-                        if (matrix[i - 1][j + 1] > 0 ||
-                            matrix[i][j + 1] > 0) {
-                            pair<int, int> move = {i, j};
-                            moveList.push_back(move);
-                            continue;
-                        }
-                    }
-                    if (matrix[i - 1][j] > 0) {
-                        pair<int, int> move = {i, j};
-                        moveList.push_back(move);
-                        continue;
-                    }
-                }
-                if (i < rows - 1) {
-                    if (j > 0) {
-                        if (matrix[i + 1][j - 1] > 0 ||
-                            matrix[i][j - 1] > 0) {
-                            pair<int, int> move = {i, j};
-                            moveList.push_back(move);
-                            continue;
-                        }
-                    }
-                    if (j < cols - 1) {
-                        if (matrix[i + 1][j + 1] > 0 ||
-                            matrix[i][j + 1] > 0) {
-                            pair<int, int> move = {i, j};
-                            moveList.push_back(move);
-                            continue;
-                        }
-                    }
-                    if (matrix[i + 1][j] > 0) {
-                        pair<int, int> move = {i, j};
-                        moveList.push_back(move);
-                        continue;
-                    }
-                }
-
-            }
-        }
-        return moveList;
-    }*/
     vector<pair<int, int>> generateMoves() {
-        //Refactored version. Works the same, but more readable
         vector<pair<int, int>> moveList;
         int rows = static_cast<int>(matrix.size());
         if (rows == 0) return moveList;
         int cols = static_cast<int>(matrix[0].size());
 
         const vector<pair<int, int>> directions = {
-                {-1,  0}, // North
-                {-1,  1}, // Northeast
-                { 0,  1}, // East
-                { 1,  1}, // Southeast
-                { 1,  0}, // South
-                { 1, -1}, // Southwest
-                { 0, -1}, // West
+                {-1, 0}, // North
+                {-1, 1}, // Northeast
+                {0,  1}, // East
+                {1,  1}, // Southeast
+                {1,  0}, // South
+                {1,  -1}, // Southwest
+                {0,  -1}, // West
                 {-1, -1}  // Northwest
         };
 
@@ -154,7 +90,7 @@ public:
                 if (matrix[i][j] > 0) continue;
 
                 //Easier to check for every direction
-                for (const auto& dir : directions) {
+                for (const auto &dir: directions) {
                     int ni = i + dir.first;
                     int nj = j + dir.second;
 
@@ -248,93 +184,76 @@ private:
     int evaluationCount = 0;
     Board board;
 
-private:
-    void
-    evaluateWay(vector<vector<int>> &matrix, int i, int j, bool isBot, bool botsTurn, vector<int> &evaluation_grades) {
+    static void evaluateWay(vector<vector<int>> &matrix, int i, int j,
+                            bool isBot, bool botsTurn, vector<int> &evaluation_grades) {
         if (matrix[i][j] == (isBot ? 2 : 1)) {
             evaluation_grades[0]++;
         } else if (matrix[i][j] == 0) {
             if (evaluation_grades[0] > 0) {
                 evaluation_grades[1]--;
-                evaluation_grades[2] += rateEvaluation(evaluation_grades[0],
-                                                       evaluation_grades[1],
-                                                       isBot == botsTurn);
+                evaluation_grades[2] += rateEvaluation(evaluation_grades[0], evaluation_grades[1], isBot == botsTurn);
                 evaluation_grades[0] = 0;
             }
             evaluation_grades[1] = 1;
-        } else if (evaluation_grades[0] > 0) {
-            evaluation_grades[2] += rateEvaluation(evaluation_grades[0],
-                                                   evaluation_grades[1],
-                                                   isBot == botsTurn);
-            evaluation_grades[0] = 0;
+        } else {
+            if (evaluation_grades[0] > 0) {
+                evaluation_grades[2] += rateEvaluation(evaluation_grades[0], evaluation_grades[1], isBot == botsTurn);
+                evaluation_grades[0] = 0;
+            }
             evaluation_grades[1] = 2;
-        } else
-            evaluation_grades[1] = 2;
+        }
     }
 
-    void evaluateWay_OnePass(vector<int> &evaluation_grades, bool isBot, bool playersTurn) {
+    static void evaluateWay_OnePass(vector<int> &evaluation_grades, bool isBot, bool playersTurn) {
         if (evaluation_grades[0] > 0) {
-            evaluation_grades[2] += rateEvaluation(evaluation_grades[0],
-                                                   evaluation_grades[1],
-                                                   isBot == playersTurn);
+            evaluation_grades[2] += rateEvaluation(evaluation_grades[0], evaluation_grades[1], isBot == playersTurn);
         }
         evaluation_grades[0] = 0;
         evaluation_grades[1] = 2;
     }
 
-
     double evaluateForPlayer(Board &board, bool blacksTurn) {
         evaluationCount++;
         double blackScore = getScore(board, true, blacksTurn);
         double whiteScore = getScore(board, false, blacksTurn);
-        if (blackScore == 0) blackScore = 1.0;
-        return whiteScore / blackScore;
+        return whiteScore / (blackScore == 0 ? 1.0 : blackScore);
     }
 
-    int evaluateHorizontal(vector<vector<int>> &matrix, bool forBot, bool botsTurn) {
-        // [0] Continuous series, [1] Maximum number of blocks, [2] Total score
+    static int evaluateHorizontal(vector<vector<int>> &matrix, bool forBot, bool botsTurn) {
         vector<int> evaluations = {0, 2, 0};
-
-        for (int i = 0; i < matrix.size(); i++) {
-            for (int j = 0; j < matrix[0].size(); j++) {
-                evaluateWay(matrix, i, j, forBot, botsTurn, evaluations);
+        for (vector<int> &row: matrix) {
+            for (int j = 0; j < row.size(); j++) {
+                evaluateWay(matrix, &row - &matrix[0], j, forBot, botsTurn, evaluations);
             }
             evaluateWay_OnePass(evaluations, forBot, botsTurn);
         }
-
         return evaluations[2];
     }
 
-    int evaluateVertical(vector<vector<int>> &matrix, bool forBot, bool botsTurn) {
-        // [0] Continuous series, [1] Maximum number of blocks, [2] Total score
+    static int evaluateVertical(vector<vector<int>> &matrix, bool forBot, bool botsTurn) {
         vector<int> evaluations = {0, 2, 0};
-
         for (int j = 0; j < matrix[0].size(); j++) {
             for (int i = 0; i < matrix.size(); i++) {
                 evaluateWay(matrix, i, j, forBot, botsTurn, evaluations);
             }
             evaluateWay_OnePass(evaluations, forBot, botsTurn);
-
         }
         return evaluations[2];
     }
 
-    int evaluateDiagonal(vector<vector<int>> &matrix, bool forBot, bool botsTurn) {
-        // [0] Continuous series, [1] Maximum number of blocks, [2] Total score
+    static int evaluateDiagonal(vector<vector<int>> &matrix, bool forBot, bool botsTurn) {
         vector<int> evaluations = {0, 2, 0};
-
         for (int k = 0; k <= 2 * (matrix.size() - 1); k++) {
-            int iStart = max(0, static_cast<int>(k - matrix.size() + 1));
-            int iEnd = min(static_cast<int>(matrix.size() - 1), k);
+            int iStart = max(0, k - (int) matrix.size() + 1);
+            int iEnd = min((int) matrix.size() - 1, k);
             for (int i = iStart; i <= iEnd; ++i) {
                 evaluateWay(matrix, i, k - i, forBot, botsTurn, evaluations);
             }
             evaluateWay_OnePass(evaluations, forBot, botsTurn);
         }
-
         for (int k = 1 - matrix.size(); k < matrix.size(); k++) {
             int iStart = max(0, k);
-            int iEnd = min(matrix.size() + k - 1, matrix.size() - 1);
+            int iEnd = min((int) matrix.size() + k - 1, (int) matrix.size() - 1);
             for (int i = iStart; i <= iEnd; ++i) {
                 evaluateWay(matrix, i, i - k, forBot, botsTurn, evaluations);
             }
@@ -343,46 +262,24 @@ private:
         return evaluations[2];
     }
 
-    int rateEvaluation(int count, int blocked, bool currentTurn) {
+    static int rateEvaluation(int count, int blocked, bool currentTurn) {
         if (blocked == 2 && count < 5) return 0;
-
         int winGuarantee = WIN_SCORE * 10;
         switch (count) {
-            case 5: {
+            case 5:
                 return WIN_SCORE;
-            }
-            case 4: {
-                if (currentTurn) return winGuarantee;
-                else {
-                    if (blocked == 0) return winGuarantee / 4;
-                    return 200;
-                }
-            }
-            case 3: {
-                if (blocked == 0) {
-                    if (currentTurn) return 50000;
-                    return 200;
-                } else {
-                    if (currentTurn) return 10;
-                    return 5;
-                }
-            }
-            case 2: {
-                if (blocked == 0) {
-                    if (currentTurn) return 7;
-                    return 5;
-                } else {
-                    return 3;
-                }
-            }
-            case 1: {
+            case 4:
+                return currentTurn ? winGuarantee : (blocked == 0 ? winGuarantee / 4 : 200);
+            case 3:
+                return blocked == 0 ? (currentTurn ? 50000 : 200) : (currentTurn ? 10 : 5);
+            case 2:
+                return blocked == 0 ? (currentTurn ? 7 : 5) : 3;
+            case 1:
                 return 1;
-            }
+            default:
+                return WIN_SCORE * 2;
         }
-
-        return WIN_SCORE * 2;
     }
-
 
     vector<double> minimax(int depth, Board &tempBoard, bool max, double alpha, double beta) {
         // The basic minimax algorithm consists in checking all possible moves and evaluating each of them
@@ -395,35 +292,22 @@ private:
         // In addition to this, the function to generate possible moves does not consider moves outside the escalated events
         // (No further than 1 cell from all filled cells)
 
-        if (depth == 0) {
-            vector<double> bestMove = {evaluateForPlayer(tempBoard, !max), NULL_DOUBLE, NULL_DOUBLE};
-            return bestMove;
-        }
-
+        if (depth == 0) return {evaluateForPlayer(tempBoard, !max), NULL_DOUBLE, NULL_DOUBLE};
         vector<pair<int, int>> allPossibleMoves = tempBoard.generateMoves();
-
-        if (allPossibleMoves.empty()) {
-            vector<double> bestMove = {evaluateForPlayer(tempBoard, !max), NULL_DOUBLE, NULL_DOUBLE};
-            return bestMove;
-        }
-
+        if (allPossibleMoves.empty()) return {evaluateForPlayer(tempBoard, !max), NULL_DOUBLE, NULL_DOUBLE};
 
         vector<double> bestMove(3, 0.0);
         if (max) {
-            //[0] - Score, [1] - x-coordinate, [2] - y-coordinate
+            // [0] - Score, [1] - x-coordinate, [2] - y-coordinate
             bestMove = {-1.0, 0.0, 0.0};
 
-            for (pair<int, int> move: allPossibleMoves) {
-
+            for (pair<int, int> &move: allPossibleMoves) {
                 tempBoard.move_noUser(move.second, move.first, false);
                 vector<double> tempMove = minimax(depth - 1, tempBoard, false, alpha, beta);
                 tempBoard.remove(move.second, move.first);
 
-                if (tempMove[0] > alpha)
-                    alpha = tempMove[0];
-                if (tempMove[0] >= beta)
-                    return tempMove;
-
+                if (tempMove[0] > alpha) alpha = tempMove[0];
+                if (tempMove[0] >= beta) return tempMove;
                 if (tempMove[0] > bestMove[0]) {
                     bestMove = tempMove;
                     bestMove[1] = move.first;
@@ -431,22 +315,16 @@ private:
                 }
             }
         } else {
+            // [0] - Score, [1] - x-coordinate, [2] - y-coordinate
             bestMove = {(double) WIN_SCORE, (double) allPossibleMoves[0].first, (double) allPossibleMoves[0].second};
 
-            for (pair<int, int> move: allPossibleMoves) {
+            for (pair<int, int> &move: allPossibleMoves) {
                 tempBoard.move_noUser(move.second, move.first, true);
                 vector<double> tempMove = minimax(depth - 1, tempBoard, true, alpha, beta);
-
                 tempBoard.remove(move.second, move.first);
 
-                if (tempMove[0] < beta) {
-                    beta = tempMove[0];
-                }
-
-                if (tempMove[0] <= alpha) {
-                    return tempMove;
-                }
-
+                if (tempMove[0] < beta) beta = tempMove[0];
+                if (tempMove[0] <= alpha) return tempMove;
                 if (tempMove[0] < bestMove[0]) {
                     bestMove = tempMove;
                     bestMove[1] = move.first;
@@ -459,53 +337,32 @@ private:
 
     vector<double> getWinningMove(Board &currentBoard) {
         vector<pair<int, int>> allPossibleMoves = currentBoard.generateMoves();
-        vector<double> winningMove(3, 0.0);
-
-        for (pair<int, int> move: allPossibleMoves) {
+        for (pair<int, int> &move: allPossibleMoves) {
             evaluationCount++;
             Board tmp(currentBoard);
             tmp.move_noUser(move.second, move.first, false);
-
-            if (getScore(tmp, false, false) >= WIN_SCORE) {
-                winningMove[1] = move.first;
-                winningMove[2] = move.second;
-                return winningMove;
-            }
+            if (getScore(tmp, false, false) >= WIN_SCORE) return {0.0, (double) move.first, (double) move.second};
         }
         return NULL_VEC_DOUBLE;
     }
 
 public:
-    Algorithm(Board board) : board(board) {}
+    explicit Algorithm(const Board &board) : board(board) {}
 
     int getScore(Board &currentBoard, bool forBot, bool botsTurn) {
         vector<vector<int>> boardMatrix = currentBoard.getBoardMatrix();
-
         return evaluateHorizontal(boardMatrix, forBot, botsTurn) +
                evaluateVertical(boardMatrix, forBot, botsTurn) +
                evaluateDiagonal(boardMatrix, forBot, botsTurn);
     }
 
     vector<int> getNextMove(int depth) {
-        vector<int> move(2, 0);
         vector<double> bestMove = getWinningMove(board);
-
-        if (bestMove != NULL_VEC_DOUBLE) {
-            move[0] = bestMove[1];
-            move[1] = bestMove[2];
-        } else {
+        if (bestMove == NULL_VEC_DOUBLE) {
             Board newBoard(board);
             bestMove = minimax(depth, newBoard, true, -1.0, WIN_SCORE);
-            if (bestMove[1] == NULL_DOUBLE) {
-                move = NULL_VEC_INT;
-            } else {
-                move[0] = static_cast<int>(bestMove[1]);
-                move[1] = static_cast<int>(bestMove[2]);
-            }
         }
-        evaluationCount = 0;
-
-        return move;
+        return {static_cast<int>(bestMove[1]), static_cast<int>(bestMove[2])};
     }
 };
 
@@ -514,9 +371,8 @@ private:
     Board board;
     bool isPlayerTurn = true;
     bool PC_ACTIVATED;
-
     int winner;
-private:
+
     bool placeMove(int posX, int posY, bool isX) {
         bool success = board.move(posX, posY, isX);
         if (success) board.extend(posX, posY);
@@ -524,10 +380,8 @@ private:
     }
 
 public:
-    TicTacToe(Board board = Board(), bool PC_ON = true) : board(board), PC_ACTIVATED(PC_ON) {
+    explicit TicTacToe(Board board = Board(), bool PC_ON = true) : board(board), PC_ACTIVATED(PC_ON), winner(0) {
         if (DEBUG) cout << "\n*PC_ACTIVATED: " << PC_ACTIVATED;
-
-        winner = 0;
         if (PC_ACTIVATED) {
             placeMove(board.getBoardSize() / 2, board.getBoardSize() / 2, false);
             isPlayerTurn = true;
@@ -535,21 +389,20 @@ public:
     }
 
     TicTacToe &operator=(const TicTacToe &other) {
-        if (this == &other) return *this;
-        this->board = other.board;
-        this->isPlayerTurn = other.isPlayerTurn;
-        this->PC_ACTIVATED = other.PC_ACTIVATED;
-        this->winner = other.winner;
-
+        if (this != &other) {
+            board = other.board;
+            isPlayerTurn = other.isPlayerTurn;
+            PC_ACTIVATED = other.PC_ACTIVATED;
+            winner = other.winner;
+        }
         return *this;
     }
 
-    TicTacToe(const TicTacToe &other)
-            : board(other.board),
-              isPlayerTurn(other.isPlayerTurn),
-              PC_ACTIVATED(other.PC_ACTIVATED),
-              winner(other.winner) {
-    }
+    TicTacToe(const TicTacToe &other) :
+            board(other.board),
+            isPlayerTurn(other.isPlayerTurn),
+            PC_ACTIVATED(other.PC_ACTIVATED),
+            winner(other.winner) {}
 
     void pcGame() {
         if (isPlayerTurn) {
@@ -558,9 +411,8 @@ public:
             cin >> x >> y;
             if (!move(x, y)) {
                 board.print();
-                cout << "\nYou cant move this direction! Try again.";
+                cout << "\nYou can't move this direction! Try again.";
             }
-
         } else {
             pcMakeNextMove();
             board.print();
@@ -573,25 +425,27 @@ public:
         cout << "\nInput your turn (" << currChar << "): ";
         int x, y;
         cin >> x >> y;
-        if (!move(x, y))
-            cout << "\nYou cant move this direction! Try again.";
+        if (!move(x, y)) cout << "\nYou can't move this direction! Try again.";
     }
 
-public:
+    string makeWinString() {
+        string whoWon = "\n\n";
+        if (winner == 1) whoWon += (PC_ACTIVATED ? "PC" : string(1, PC_CHAR));
+        else whoWon += (PC_ACTIVATED ? "Player" : string(1, USER_CHAR));
+
+        whoWon += " won the game! Congratulations!";
+        return whoWon;
+    }
+
     void startConsole() {
         if (PC_ACTIVATED) board.print();
         while (true) {
             winner = checkWinner();
             if (winner != 0) {
-                string whoWon = "\n\n";
-                if (winner == 1) whoWon += PC_ACTIVATED ? "PC" : string(1, PC_CHAR);
-                else whoWon += PC_ACTIVATED ? "Player" : string(1, USER_CHAR);
-                whoWon += " won the game! Congratulations!";
                 board.print();
-                cout << whoWon;
+                cout << makeWinString();
                 return;
             }
-
             if (PC_ACTIVATED) pcGame();
             else playerGame();
         }
@@ -614,8 +468,7 @@ public:
             vector<int> PC_Move = PC.getNextMove(RECURSION_DEPTH);
             if (DEBUG) cout << "\n*pcMakeNextMove. i: " << PC_Move[1] << ", j: " << PC_Move[0];
             move(PC_Move[1], PC_Move[0]);
-        }
-        catch (exception &e) {
+        } catch (exception &e) {
             if (DEBUG) cerr << endl << e.what();
             return false;
         }
@@ -624,20 +477,14 @@ public:
 
     vector<int> PC_best() {
         Algorithm PC(board);
-        vector<int> move = PC.getNextMove(RECURSION_DEPTH);
-        return move;
+        return PC.getNextMove(RECURSION_DEPTH);
     }
 
     bool move(int X_Pos, int Y_Pos) {
         bool success;
         if (PC_ACTIVATED) {
-            if (isPlayerTurn) {
-                success = placeMove(X_Pos, Y_Pos, true);
-                if (success) isPlayerTurn = false;
-                return success;
-            }
-            success = placeMove(X_Pos, Y_Pos, false);
-            if (success) isPlayerTurn = true;
+            success = isPlayerTurn ? placeMove(X_Pos, Y_Pos, true) : placeMove(X_Pos, Y_Pos, false);
+            if (success) isPlayerTurn = !isPlayerTurn;
             return success;
         }
         success = placeMove(X_Pos, Y_Pos, isPlayerTurn);
@@ -645,7 +492,7 @@ public:
         return success;
     }
 
-    int who() {
+    int who() const {
         return isPlayerTurn ? 1 : 2;
     }
 
