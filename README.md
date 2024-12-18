@@ -10,7 +10,7 @@ This version incorporates alpha-beta pruning to optimize move selection. Additio
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/LilConsul/Endless-TicTacToe-CPP.git
+git clone https://github.com/LilConsul/endless-tictactoe.git
 ```
 
 2. Navigate to the project directory and compile the code using any C++ compiler.
